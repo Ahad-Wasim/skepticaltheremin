@@ -15,7 +15,10 @@ var Search = React.createClass({
     event.preventDefault();
     
     // When the form is submitted, call the onSearch callback that is passed to the component
-
+    
+    // Calls the onSearch method from its parent -> MapApp
+    // Gets the Search Result that the user passed in.
+    // We want to recenter so thats why true is passed in.
     this.props.onSearch(this.state.value, null, true);
 
     // Unfocus the text input field

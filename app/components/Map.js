@@ -4,6 +4,7 @@ var helpers = require('../utils/helpers');
 var Map = React.createClass({
   getInitialState(){
     return {
+      // Connected to the location input
       location: '',
       breadcrumbs: [],
       lat: this.props.lat,
@@ -15,10 +16,12 @@ var Map = React.createClass({
     }
   },
   
+  // Change event from the location input
   handleLocationChange(e) {
     this.setState({location: e.target.value});  
   },
   
+  // Grabs the comments from the comment textarea
   handleCommentChange(e) {
     this.setState({comment: e.target.value});
   },
@@ -65,16 +68,23 @@ var Map = React.createClass({
     // the page. This is why we are calling the following method manually. 
     // This makes sure that our map initialization code is run the first time.
 
+
+    // CREATES A GOOGLE MAP
+
     // this.componentDidUpdate();
     var self = this;
+    // WE ARE CREATING A GOOGLE MAP AND ATTACHING TO THE SCREEN
     var map = new GMaps({
       el: '#map',
+      // Grabbing the latitude and longitude from the MapApp Componenet
       lat: this.props.lat,
       lng: this.props.lng,
+      // The style for the map
       styles: [{"featureType":"administrative","elementType":"labels.text.fill","stylers":[{"color":"#444444"}]},{"featureType":"landscape","elementType":"all","stylers":[{"color":"#f2f2f2"}]},{"featureType":"poi","elementType":"all","stylers":[{"visibility":"off"}]},{"featureType":"road","elementType":"all","stylers":[{"saturation":-100},{"lightness":45}]},{"featureType":"road.highway","elementType":"all","stylers":[{"visibility":"simplified"}]},{"featureType":"road.arterial","elementType":"labels.icon","stylers":[{"visibility":"off"}]},{"featureType":"transit","elementType":"all","stylers":[{"visibility":"off"}]},{"featureType":"water","elementType":"all","stylers":[{"color":"#46bcec"},{"visibility":"on"}]}]
 
     });
 
+    // Map is set to the new state
     this.setState({map: map});
 
     //Right Click Menu
@@ -84,10 +94,17 @@ var Map = React.createClass({
         title: 'Add Bread Crumb',
         name: 'add_bread_crumb',
         action: function(e) {
+          // Grabs the latitude & longitude and converts it into a string
           var addressString = e.latLng.lat().toString() + " " +  e.latLng.lng().toString();
+
+          // Given where they clicked were passing in the longititude and latitude
+          // Calls the searchAddress method on this componenents parent
           self.props.searchAddress(addressString, function(newLocation){
+
+            // By updating the location the inputs change automatically
             self.setState({location: newLocation, comment: "Add comments here and save breadcrumb"});
           });
+
           var id = self.props.favorites.length;
           var time = Date.now();
           self.setState({lastMarkerTimeStamp: time});
@@ -97,6 +114,8 @@ var Map = React.createClass({
             title: 'New marker',
             id: id,
             timestamp: time,
+
+            // The color for the google maps
             icon: {
               path: google.maps.SymbolPath.BACKWARD_CLOSED_ARROW,
               strokeColor: "green",
@@ -127,8 +146,12 @@ var Map = React.createClass({
 
     console.log("favorites", this.props.favorites);
     
+    // FETCHES ALL THE BREADCRUMBS PERTAINING TO A USER
 
     // map.addMarkers(this.props.favorites); //no longer used
+    // Were going to get all the breadcrumbs pertaining to a user
+    // And then add that to the breadcrumbs array
+
     helpers.getAllBreadCrumbs(this.props.user, function(data){
       if(!data){
         return;
@@ -159,6 +182,9 @@ var Map = React.createClass({
 
   },
 
+
+
+  // this method is called once the state has been updated
   componentDidUpdate(){
     if(this.props.favorites.length !== this.state.breadcrumbs.length){
       this.setState({breadcrumbs: this.props.favorites});
@@ -244,12 +270,18 @@ var Map = React.createClass({
 
   },
 
+  // Handles breadCrumb submission
+  // Submit when their is data
   handleSubmit(e) {
     e.preventDefault();
     var id = this.props.favorites.length;
     var timestamp = this.state.lastMarkerTimeStamp;
+
+    // Adding a NEW FAVORITE BREADCRUMB
     this.addFavBreadCrumb(id, this.props.lat, this.props.lng, timestamp, {note: this.state.comment}, this.state.location);
     // this.state.currentMarker.setMap(null);
+
+    //  Clears out the inputs here
     this.setState({location: '', comment: ''});
   },
 
@@ -259,12 +291,16 @@ var Map = React.createClass({
       <div>
       <div className="map-holder">
         <p>Loading......</p>
+        // This is our google map
         <div id="map"></div>
       </div>
+      // BY SUBMITTING THIS FORM WE ARE ESSENTIALY ADDING A NEW BREADCRUMB TO OUR DATABASE
       <form  onSubmit={this.handleSubmit} className="form-group list-group col-xs-12 col-md-6 col-md-offset-3" >
         <label htmlFor="location">Location:</label>
+        // Updates the text state
         <input type="text" className="form-control" id="location" onChange={this.handleLocationChange} value={this.state.location} placeholder="Location" />
         <label htmlFor="comment">Comment:</label>
+        // Updates the comment state
         <textarea value={this.state.comment} onChange={this.handleCommentChange} className="form-control" rows="10" id="comment"></textarea>
         <div>
           <input type="submit" className="btn btn-primary" value="Save Breadcrumb" />

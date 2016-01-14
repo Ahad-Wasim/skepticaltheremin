@@ -12,6 +12,7 @@ var MapApp = require('../components/MapApp');
 
 module.exports = (
   <Route path="/" component={Main}>
+    // Map App has the signUp page on their
     <IndexRoute component={MapApp} />
     <Route name="login" path="login" component={Login} />
     <Route name="home" path="home" component={Home} />
